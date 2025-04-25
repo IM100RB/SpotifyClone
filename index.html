@@ -1,0 +1,264 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #282828;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b3b3b3;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="w-64 bg-black p-6 flex flex-col">
+        <div class="mb-8">
+            <img src="https://img.icons8.com/color/96/000000/spotify.png" alt="Spotify Logo" class="h-10">
+        </div>
+        <nav class="flex-1">
+            <ul class="space-y-2">
+                <li><a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white"><img src="https://img.icons8.com/ios-filled/24/ffffff/home.png" alt="Home Icon" class="w-6 h-6"><span>Home</span></a></li>
+                <li><a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white"><img src="https://img.icons8.com/ios-filled/24/ffffff/music-library.png" alt="Library Icon" class="w-6 h-6"><span>Your Library</span></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 bg-[#181818] p-6 overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold">KR$NA's Hits</h2>
+            <div class="flex items-center space-x-4">
+                <input type="text" placeholder="Search..." class="bg-[#282828] text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="bg-[#282828] rounded-lg p-4 hover:bg-[#383838] transition">
+                <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80" alt="I Guess Cover" class="w-full rounded-md mb-4">
+                <h3 class="text-lg font-semibold">I Guess</h3>
+                <p class="text-sm text-gray-400">KR$NA</p>
+            </div>
+            <div class="bg-[#282828] rounded-lg p-4 hover:bg-[#383838] transition">
+                <img src="https://images.unsplash.com/photo-1557672172-298e090bd0f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80" alt="Khatta Flow Cover" class="w-full rounded-md mb-4">
+                <h3 class="text-lg font-semibold">Khatta Flow</h3>
+                <p class="text-sm text-gray-400">KR$NA ft. Seedhe Maut</p>
+            </div>
+            <div class="bg-[#282828] rounded-lg p-4 hover:bg-[#383838] transition">
+                <img src="https://images.unsplash.com/photo-1511379936541-1b916ac8d99f?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80" alt="Hola Amigo Cover" class="w-full rounded-md mb-4">
+                <h3 class="text-lg font-semibold">Hola Amigo</h3>
+                <p class="text-sm text-gray-400">KR$NA ft. Seedhe Maut</p>
+            </div>
+            <div class="bg-[#282828] rounded-lg p-4 hover:bg-[#383838] transition">
+                <img src="https://images.unsplash.com/photo-1484755560615-a4c64e778a6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80" alt="Prarthana Cover" class="w-full rounded-md mb-4">
+                <h3 class="text-lg font-semibold">Prarthana</h3>
+                <p class="text-sm text-gray-400">KR$NA</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player -->
+    <div class="fixed bottom-0 left-0 right-0 bg-black p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=56&h=56&q=80" alt="Track Cover" class="w-14 h-14 rounded">
+            <div>
+                <p class="font-semibold">I Guess</p>
+                <p class="text-sm text-gray-400">KR$NA</p>
+            </div>
+        </div>
+        <div class="flex flex-col items-center space-y-2">
+            <div class="flex items-center space-x-4">
+                <button id="prevBtn" class="text-gray-300 hover:text-white"><img src="https://img.icons8.com/ios-filled/24/ffffff/skip-to-start.png" alt="Previous Icon" class="w-6 h-6"></button>
+                <button id="playPauseBtn" class="text-white bg-green-500 rounded-full p-2 hover:bg-green-600"><img src="https://img.icons8.com/ios-filled/24/ffffff/play.png" alt="Play Icon" class="w-6 h-6"></button>
+                <button id="nextBtn" class="text-gray-300 hover:text-white"><img src="https://img.icons8.com/ios-filled/24/ffffff/end.png" alt="Next Icon" class="w-6 h-6"></button>
+            </div>
+            <div class="flex items-center w-96">
+                <span id="currentTime" class="text-sm text-gray-400">0:00</span>
+                <input type="range" id="progressBar" min="0" max="100" value="0" class="w-full mx-2">
+                <span id="duration" class="text-sm text-gray-400">0:00</span>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button id="volumeBtn" class="text-gray-300 hover:text-white"><img src="https://img.icons8.com/ios-filled/24/ffffff/speaker.png" alt="Volume Icon" class="w-6 h-6"></button>
+            <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1" class="w-24">
+        </div>
+    </div>
+
+    <script>
+        const audio = new Audio();
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementBy AerosmithDB.com/api/v1/json/1/searchtrack.php?s=${encodeURIComponent(artist)}&t=${encodeURIComponent(track)}`);
+                const data = await response.json();
+                console.log('TheAudioDB response:', data);
+                return data.track ? data.track[0] : null;
+            } catch (error) {
+                console.error('Error fetching metadata:', error);
+                return null;
+            }
+        }
+
+        async function loadTrack(index) {
+            try {
+                const track = playlist[index];
+                audio.src = track.src;
+                audio.load();
+
+                // Update UI
+                document.querySelector('.player .font-semibold').textContent = track.title;
+                document.querySelector('.player .text-gray-400').textContent = track.artist;
+                document.querySelector('.player img').src = track.cover.replace('w=150&h=150', 'w=56&h=56');
+
+                // Log audio loading
+                console.log(`Attempting to load track: ${track.title}, URL: ${track.src}`);
+
+                // Fetch metadata (optional)
+                const metadata = await fetchTrackMetadata(track.artist, track.title);
+                if (metadata) {
+                    console.log('Metadata loaded:', metadata.strTrack, metadata.strArtist);
+                } else {
+                    console.log('No metadata found, using static data');
+                }
+            } catch (error) {
+                console.error('Error loading track:', error);
+                alert('Failed to load track. Check console for details.');
+            }
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                audio.pause();
+                playPauseBtn.innerHTML = '<img src="https://img.icons8.com/ios-filled/24/ffffff/play.png" alt="Play Icon" class="w-6 h-6">';
+                isPlaying = false;
+                console.log('Paused track');
+            } else {
+                audio.play().then(() => {
+                    playPauseBtn.innerHTML = '<img src="https://img.icons8.com/ios-filled/24/ffffff/pause.png" alt="Pause Icon" class="w-6 h-6">';
+                    isPlaying = true;
+                    console.log('Playing track');
+                }).catch(error => {
+                    console.error('Playback failed:', error.message);
+                    alert('Failed to play audio. Check console for details.');
+                });
+            }
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        audio.addEventListener('loadedmetadata', () => {
+            progressBar.max = audio.duration;
+            durationEl.textContent = formatTime(audio.duration);
+            console.log('Audio metadata loaded, duration:', audio.duration);
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            progressBar.value = audio.currentTime;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        });
+
+        audio.addEventListener('error', (e) => {
+            const errorCode = e.target.error ? e.target.error.code : 'Unknown';
+            const errorMessage = e.target.error ? e.target.error.message : 'No error message';
+            console.error(`Audio error - Code: ${errorCode}, Message: ${errorMessage}, URL: ${audio.src}`);
+            alert('Error loading audio. Check console for details.');
+        });
+
+        audio.addEventListener('canplay', () => {
+            console.log('Audio can play:', audio.src);
+        });
+
+        progressBar.addEventListener('input', () => {
+            audio.currentTime = progressBar.value;
+            console.log('Seek to:', audio.currentTime);
+        });
+
+        volumeBar.addEventListener('input', () => {
+            audio.volume = volumeBar.value;
+            console.log('Volume set to:', audio.volume);
+        });
+
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        prevBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(currentTrackIndex);
+            if (isPlaying) {
+                audio.play().catch(error => console.error('Playback failed:', error.message));
+            }
+            console.log('Previous track selected:', playlist[currentTrackIndex].title);
+        });
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            loadTrack(currentTrackIndex);
+            if (isPlaying) {
+                audio.play().catch(error => console.error('Playback failed:', error.message));
+            }
+            console.log('Next track selected:', playlist[currentTrackIndex].title);
+        });
+
+        // Load initial track
+        loadTrack(currentTrackIndex);
+
+        // Debug: Log when script runs
+        console.log('Spotify clone script initialized');
+    </script>
+</body>
+</html>
